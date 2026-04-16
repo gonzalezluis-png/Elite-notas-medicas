@@ -196,20 +196,31 @@ body{font-family:'Karla',sans-serif;background:var(--bg);color:var(--text);line-
 .mn-welcome-card .wc-dot{width:12px;height:12px;border-radius:50%;margin:0 auto 10px}
 .mn-welcome-card .wc-name{font-weight:700;font-size:.9rem;color:var(--text)}
 .mn-welcome-card .wc-desc{font-size:.72rem;color:var(--text-muted);margin-top:4px}
-.mn-recent-section{max-width:600px;margin:36px auto 0;padding:0 20px;animation:mn-fadeUp .6s ease}
+.mn-recent-section{max-width:900px;margin:36px auto 0;padding:0 20px;animation:mn-fadeUp .6s ease}
 .mn-recent-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
 .mn-recent-header h2{font-family:'Libre Baskerville',serif;font-size:1rem;font-weight:700;color:var(--text);margin:0;text-align:left}
 .mn-recent-search{flex:1;min-width:180px;max-width:260px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-family:'Karla',sans-serif;font-size:.8rem;color:var(--text);background:var(--surface);transition:border-color .2s}
 .mn-recent-search:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
-.mn-recent-list{display:flex;flex-direction:column;gap:6px;text-align:left}
-.mn-recent-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;transition:all .18s}
+.mn-recent-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:left}
+@media (max-width:720px){.mn-recent-list{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.mn-recent-list{grid-template-columns:1fr}}.mn-recent-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;transition:all .18s}
 .mn-recent-item:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateX(2px)}
 .mn-recent-badge{font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;flex-shrink:0}
 .mn-recent-info{flex:1;min-width:0}
 .mn-recent-name{font-size:.86rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mn-recent-date{font-size:.7rem;color:var(--text-muted);margin-top:2px}
-.mn-recent-empty{font-size:.78rem;color:var(--text-muted);text-align:center;padding:18px;border:1px dashed var(--border);border-radius:var(--radius);background:var(--bg)}
-/* PERSONAL NOTES */
+.mn-recent-empty{font-size:.78rem;color:var(--text-muted);text-align:center;padding:18px;border:1px dashed var(--border);border-radius:var(--radius);background:var(--bg);grid-column:1 / -1}
+.mn-recent-card{position:relative;padding:14px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:6px;min-height:130px;overflow:hidden}
+.mn-recent-card:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.mn-recent-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+.mn-recent-card-name{font-size:.88rem;font-weight:700;color:var(--text);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mn-recent-card-age{font-size:.72rem;color:var(--text-muted);font-weight:600}
+.mn-recent-card-cc{font-size:.74rem;color:var(--text);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mn-recent-cc-label{display:inline-block;font-size:.62rem;font-weight:700;color:var(--text-muted);background:var(--bg);padding:1px 5px;border-radius:4px;margin-right:4px;letter-spacing:.3px}
+.mn-recent-card-date{font-size:.68rem;color:var(--text-muted);margin-top:auto;padding-top:4px;border-top:1px dashed var(--border)}
+.mn-recent-star{background:none;border:none;color:var(--border);font-size:1.15rem;cursor:pointer;padding:2px 4px;line-height:1;transition:color .18s,transform .18s;flex-shrink:0}
+.mn-recent-star:hover{color:#f5a623;transform:scale(1.15)}
+.mn-recent-star.active{color:#f5a623}/* PERSONAL NOTES */
 .mn-notes-panel{margin-top:14px;background:var(--warning-light);border:1px solid rgba(176,125,16,.15);border-radius:var(--radius);padding:12px 14px}
 .mn-notes-panel summary{font-size:.78rem;font-weight:700;color:var(--warning);cursor:pointer;user-select:none}
 .mn-notes-textarea{width:100%;min-height:60px;margin-top:8px;padding:10px;border:1px solid rgba(176,125,16,.2);border-radius:8px;font-family:'Karla',sans-serif;font-size:.82rem;color:var(--text);background:var(--surface);resize:vertical}
@@ -619,8 +630,8 @@ document.getElementById('clinicalInput').addEventListener('input',function(){doc
 
 /* ═══ WELCOME SCREEN ═══ */
 function renderWelcome(){const g=document.getElementById('welcomeGrid');g.innerHTML=S.sheets.map(sh=>'<div class="mn-welcome-card" onclick="startFromWelcome(\''+sh.id+'\')"><div class="wc-dot" style="background:'+sh.color+'"></div><div class="wc-name">'+esc(sh.name)+'</div><div class="wc-desc">Start a new report</div></div>').join('');renderRecentCases();}
-async function renderRecentCases(){const container=document.getElementById('recentCasesList');if(!container)return;const cases=await loadHistory();const recent=cases.slice().sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).slice(0,10);const search=(document.getElementById('recentSearch')?.value||'').trim().toLowerCase();let filtered=recent;if(search)filtered=recent.filter(c=>{const hay=((c.title||'')+' '+(c.input||'')+' '+(c.output||'')+' '+(c.type||'')).toLowerCase();return hay.includes(search);});if(!filtered.length){container.innerHTML='<div class="mn-recent-empty">'+(recent.length?'No matching cases.':'No cases yet. Start a new report above.')+'</div>';return;}container.innerHTML=filtered.map(c=>{const d=new Date(c.timestamp),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),ts=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});const type=c.type||'notes';const sh=getSheet(type);const color=sh?sh.color:'#888';const label=sh?sh.name:type;const meta=extractMeta(c.output||'');const patientName=(meta.name&&meta.name!=='Not provided')?meta.name:(c.title||'Untitled');return '<div class="mn-recent-item" onclick="loadCase(\''+c.id+'\')"><span class="mn-recent-badge" style="background:'+color+'22;color:'+color+';border:1px solid '+color+'40">'+esc(label)+'</span><div class="mn-recent-info"><div class="mn-recent-name">'+esc(patientName)+'</div><div class="mn-recent-date">'+ds+' · '+ts+'</div></div></div>';}).join('');}
-function filterRecentCases(){renderRecentCases();}function startFromWelcome(sheetId){switchMode(sheetId);newCase();}
+async function renderRecentCases(){const container=document.getElementById('recentCasesList');if(!container)return;const cases=await loadHistory();const recent=cases.slice().sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).slice(0,9);const search=(document.getElementById('recentSearch')?.value||'').trim().toLowerCase();let filtered=recent;if(search)filtered=recent.filter(c=>{const hay=((c.title||'')+' '+(c.input||'')+' '+(c.output||'')+' '+(c.type||'')).toLowerCase();return hay.includes(search);});if(!filtered.length){container.innerHTML='<div class="mn-recent-empty">'+(recent.length?'No matching cases.':'No cases yet. Start a new report above.')+'</div>';return;}const bookmarks=getBookmarks();container.innerHTML=filtered.map(c=>{const d=new Date(c.timestamp),ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),ts=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});const type=c.type||'notes';const sh=getSheet(type);const color=sh?sh.color:'#888';const label=sh?sh.name:type;const meta=extractMeta(c.output||'');const patientName=(meta.name&&meta.name!=='Not provided')?meta.name:(c.title||'Untitled');const age=(meta.age&&meta.age!=='Not provided')?meta.age:'';const complaint=(meta.complaint&&meta.complaint!=='Not provided')?meta.complaint:'';const isBookmarked=bookmarks.includes(c.id);const starClass=isBookmarked?'mn-recent-star active':'mn-recent-star';const starTitle=isBookmarked?'Remove bookmark':'Save bookmark';return '<div class="mn-recent-card" onclick="loadCase(\''+c.id+'\')" style="border-top:3px solid '+color+'"><div class="mn-recent-card-top"><span class="mn-recent-badge" style="background:'+color+'22;color:'+color+'">'+esc(label)+'</span><button class="'+starClass+'" onclick="event.stopPropagation();toggleRecentBookmark(\''+c.id+'\')" title="'+starTitle+'">&#9733;</button></div><div class="mn-recent-card-name">'+esc(patientName)+'</div>'+(age?'<div class="mn-recent-card-age">Age: '+esc(age)+'</div>':'')+(complaint?'<div class="mn-recent-card-cc"><span class="mn-recent-cc-label">CC</span> '+esc(complaint)+'</div>':'')+'<div class="mn-recent-card-date">'+ds+' · '+ts+'</div></div>';}).join('');}
+function toggleRecentBookmark(id){toggleBookmarkCase(id);renderRecentCases();}function filterRecentCases(){renderRecentCases();}function startFromWelcome(sheetId){switchMode(sheetId);newCase();}
 function showWelcome(){document.getElementById('welcomeScreen').style.display='block';document.getElementById('mainWorkarea').style.display='none';renderRecentCases();}
 /* ═══ PERSONAL NOTES ═══ */
 function savePersonalNote(){if(!currentCaseId)return;const t=document.getElementById('personalNotes').value;try{const all=JSON.parse(localStorage.getItem('mn_pnotes')||'{}');all[currentCaseId]=t;localStorage.setItem('mn_pnotes',JSON.stringify(all));}catch{}}
@@ -734,3 +745,4 @@ renderModeTabs();switchMode('notes');updateFilterTypeOptions();renderSidebar();r
 </script>
 </body>
 </html>
+
