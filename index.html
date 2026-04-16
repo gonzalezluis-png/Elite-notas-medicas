@@ -377,8 +377,11 @@ body{font-family:'Karla',sans-serif;background:var(--bg);color:var(--text);line-
 .mn-chat-send:hover{background:var(--primary-hover)}.mn-chat-send:disabled{opacity:.4}
 .mn-chat-send svg{width:16px;height:16px}
 .mn-chat-overlay{display:none}
-@media(max-width:768px){.mn-main{margin-left:0!important;margin-right:0!important}.mn-chat-panel{width:100%!important;right:0}.mn-chat-panel.peeking{width:0!important;border:none}.mn-chat-panel.peeking .mn-chat-peek{display:none}}
-@media(max-width:600px){.mn-content{padding:14px 10px 40px}.mn-actions{flex-direction:column}.mn-btn{justify-content:center}.mn-report{padding:18px}.mn-edit-actions{flex-direction:column}.mn-settings-modal{width:98%;max-height:95vh}.mn-mode-tab{padding:11px 14px;font-size:11px}.mn-settings-row{grid-template-columns:1fr}.mn-stab{padding:9px 10px;font-size:10px}}
+@media(max-width:768px){.mn-main{margin-left:0!important;margin-right:0!important}.mn-chat-panel{width:100%!important;right:0;z-index:200}.mn-chat-panel.peeking{width:0!important;border:none}.mn-chat-panel.peeking .mn-chat-peek{display:none}.mn-chat-panel.expanded{width:100%!important}.mn-chat-fab{display:flex!important}}
+.mn-chat-fab{display:none;position:fixed;bottom:20px;right:16px;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;border:none;box-shadow:0 4px 16px rgba(26,86,219,.35);cursor:pointer;align-items:center;justify-content:center;z-index:150;transition:all .2s}
+.mn-chat-fab:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(26,86,219,.45)}
+.mn-chat-fab svg{width:22px;height:22px}
+.mn-chat-fab-badge{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid var(--bg);display:none}@media(max-width:600px){.mn-content{padding:14px 10px 40px}.mn-actions{flex-direction:column}.mn-btn{justify-content:center}.mn-report{padding:18px}.mn-edit-actions{flex-direction:column}.mn-settings-modal{width:98%;max-height:95vh}.mn-mode-tab{padding:11px 14px;font-size:11px}.mn-settings-row{grid-template-columns:1fr}.mn-stab{padding:9px 10px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -437,7 +440,7 @@ body{font-family:'Karla',sans-serif;background:var(--bg);color:var(--text);line-
 </div>
 <div class="mn-privacy">This platform is for internal individual use only. Patient information entered here is processed temporarily and is not stored in any public database. Protect patient confidentiality — do not share access to this tool. Use in compliance with your institution's data policies.</div>
 </div></div></div>
-<div class="mn-chat-panel peeking" id="chatPanel">
+<button class="mn-chat-fab" id="chatFab" onclick="toggleMobileChat()" title="AI Assistant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button><div class="mn-chat-panel peeking" id="chatPanel">
 <div class="mn-chat-resize" id="chatResize"></div>
 <div class="mn-chat-peek" onclick="expandChat()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="mn-chat-peek-label">Assistant</span></div>
 <div class="mn-chat-inner">
@@ -607,8 +610,9 @@ function doClearAll(){document.getElementById('clinicalInput').value='';document
 
 /* ═══ CASE ASSISTANT CHAT ═══ */
 let chatOpen=false,caseChats={},chatWidth=380;
-function expandChat(){chatOpen=true;const p=document.getElementById('chatPanel');p.classList.remove('peeking');p.classList.add('expanded');p.style.width=chatWidth+'px';document.getElementById('mainArea').classList.add('chat-expanded');renderChatMessages();setTimeout(()=>document.getElementById('chatInput').focus(),300);}
+function expandChat(){chatOpen=true;const p=document.getElementById('chatPanel');p.classList.remove('peeking');p.classList.add('expanded');if(window.innerWidth>768)p.style.width=chatWidth+'px';else p.style.width='100%';document.getElementById('mainArea').classList.add('chat-expanded');renderChatMessages();setTimeout(()=>document.getElementById('chatInput').focus(),300);}
 function minimizeChat(){chatOpen=false;const p=document.getElementById('chatPanel');p.classList.remove('expanded');p.classList.add('peeking');p.style.width='';document.getElementById('mainArea').classList.remove('chat-expanded');}
+function toggleMobileChat(){if(chatOpen){minimizeChat();}else{expandChat();}}
 function toggleChat(){if(chatOpen)minimizeChat();else expandChat();}
 function showChatToggle(){}
 /* Resize drag */
