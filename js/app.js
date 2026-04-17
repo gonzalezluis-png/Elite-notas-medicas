@@ -253,8 +253,8 @@ const TTS_STOP='<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;h
 const TTS_SPIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;animation:mn-spin .8s linear infinite;display:block"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>';
 function ttsSetState(btn,statusEl,state){
   if(state==='idle'){btn.innerHTML=TTS_ICON;btn.classList.remove('mn-btn-danger');btn.classList.add('mn-btn-outline');btn.style.opacity='.7';btn.disabled=false;if(statusEl){statusEl.textContent='';statusEl.style.display='none';}}
-  else if(state==='loading'){btn.innerHTML=TTS_SPIN;btn.classList.remove('mn-btn-danger');btn.classList.add('mn-btn-outline');btn.style.opacity='1';btn.disabled=false;if(statusEl){statusEl.textContent='Procesando...';statusEl.style.display='inline';}}
-  else if(state==='playing'){btn.innerHTML=TTS_STOP;btn.classList.remove('mn-btn-outline');btn.classList.add('mn-btn-danger');btn.style.opacity='1';btn.disabled=false;if(statusEl){statusEl.textContent='Leyendo...';statusEl.style.display='inline';}}
+  else if(state==='loading'){btn.innerHTML=TTS_SPIN;btn.classList.remove('mn-btn-danger');btn.classList.add('mn-btn-outline');btn.style.opacity='1';btn.disabled=false;if(statusEl){statusEl.textContent='Processing...';statusEl.style.display='inline';}}
+  else if(state==='playing'){btn.innerHTML=TTS_STOP;btn.classList.remove('mn-btn-outline');btn.classList.add('mn-btn-danger');btn.style.opacity='1';btn.disabled=false;if(statusEl){statusEl.textContent='Reading...';statusEl.style.display='inline';}}
 }
 async function toggleReadAloud(){
   const btn=document.getElementById('btnReadAloud');
