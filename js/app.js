@@ -305,19 +305,63 @@ const l=document.getElementById('fhList');if(!filtered.length){l.innerHTML='<div
 l.innerHTML=filtered.map(c=>{const d=new Date(c.timestamp);const ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});const sh=getSheet(c.type||'notes');const color=sh?sh.color:'#888';const isBm=bm.includes(c.id);
 return'<div class="mn-fullhist-item" onclick="loadCase(\''+c.id+'\');closeFullHistory()"><span class="mn-type-badge" style="background:'+color+'22;color:'+color+';flex-shrink:0">'+(sh?sh.name.substring(0,4).toUpperCase():'NOTE')+'</span><div class="mn-fullhist-item-info"><div class="mn-fullhist-item-title">'+esc(c.title||'Untitled')+'</div><div class="mn-fullhist-item-date">'+ds+'</div></div><div class="mn-fullhist-item-btns" onclick="event.stopPropagation()"><button class="mn-fh-bookmark'+(isBm?' saved':'')+'" onclick="toggleBookmarkCase(\''+c.id+'\')" title="'+(isBm?'Remove bookmark':'Bookmark')+'">&#9733;</button><button style="background:var(--danger-light);color:var(--danger)" onclick="deleteCaseUI(\''+c.id+'\');renderFullHistory()">Del</button></div></div>';}).join('');}
 
+/* ═══ GENERATE MENU ═══ */
+let generateForSheetId=null;
+function toggleGenerateMenu(){
+  const menu=document.getElementById('generateMenu');if(!menu)return;
+  const open=menu.classList.contains('open');
+  document.querySelectorAll('.mn-export-menu.open').forEach(m=>m.classList.remove('open'));
+  if(!open){
+    let html='';
+    S.sheets.forEach(sh=>{html+=`<button onclick="showGenerateForSheet('${sh.id}');closeGenerateMenu()"><span style="width:8px;height:8px;border-radius:50%;background:${sh.color};display:inline-block;flex-shrink:0;margin-right:4px"></span>${esc(sh.name)}</button>`;});
+    html+='<hr style="margin:4px 0;border:none;border-top:1px solid var(--border)">';
+    html+='<button onclick="generateForSheetId=null;showFollowupPrompt();closeGenerateMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Follow-up Report</button>';
+    menu.innerHTML=html;menu.classList.add('open');
+  }
+}
+function closeGenerateMenu(){document.getElementById('generateMenu')?.classList.remove('open');}
+function showGenerateForSheet(sheetId){
+  closeGenerateMenu();
+  if(sheetId==='notes'){showMedicalNotesPrompt();return;}
+  generateForSheetId=sheetId;
+  const sh=getSheet(sheetId);
+  const lbl=document.getElementById('followupLabel');const ta=document.getElementById('followupInstructions');
+  if(lbl)lbl.textContent=(sh?sh.name:'Report')+' — New Information';
+  if(ta)ta.placeholder='Enter new clinical information to generate '+(sh?sh.name:'this report')+'...';
+  showFollowupPrompt();
+}
+
 /* ═══ FOLLOW-UP REPORTS ═══ */
 let followupCount=0;
-function showFollowupPrompt(){document.getElementById('followupPromptArea').style.display='block';attachMiniMic('followupInstructions');document.getElementById('followupInstructions').focus();document.getElementById('followupPromptArea').scrollIntoView({behavior:'smooth'});}function hideFollowupPrompt(){document.getElementById('followupPromptArea').style.display='none';}
-async function generateFollowup(){const instructions=document.getElementById('followupInstructions').value.trim();if(!instructions){toast('Describe what this follow-up should contain.',true);return;}
+function showFollowupPrompt(){document.getElementById('followupPromptArea').style.display='block';attachMiniMic('followupInstructions');document.getElementById('followupInstructions').focus();document.getElementById('followupPromptArea').scrollIntoView({behavior:'smooth'});}
+function hideFollowupPrompt(){
+  document.getElementById('followupPromptArea').style.display='none';
+  generateForSheetId=null;
+  const lbl=document.getElementById('followupLabel');const ta=document.getElementById('followupInstructions');
+  if(lbl)lbl.textContent='Follow-up Report Instructions';
+  if(ta)ta.placeholder='Describe what this follow-up report should focus on...';
+}
+async function generateFollowup(){const instructions=document.getElementById('followupInstructions').value.trim();if(!instructions){toast('Describe what this should contain.',true);return;}
+const sheetId=generateForSheetId;generateForSheetId=null;
+const sh=sheetId?getSheet(sheetId):null;
 const prevReport=document.getElementById('reportContent').innerText||'';
-document.getElementById('loader').classList.add('active');document.getElementById('loaderText').textContent='Generating follow-up — please wait...';
-try{const prompt='You are a medical documentation assistant.\nBased on the PREVIOUS REPORT below, generate a NEW follow-up report as requested.\n\nPREVIOUS REPORT:\n'+prevReport+'\n\nUSER REQUEST:\n'+instructions+'\n\nRULES:\n- Generate ONLY the requested content as a NEW standalone report section.\n- Use clean HTML: <h2> for titles, <p> for content, <strong> for labels.\n- Professional medical language.\n- Do NOT repeat the entire previous report, only the new requested content.\n\nOUTPUT: Return the follow-up report as HTML.';
-const html=await callAPI(prompt);followupCount++;
-const fid='followup_'+followupCount;
-const container=document.getElementById('followupContainer');
-container.insertAdjacentHTML('beforeend','<div class="mn-followup-section" id="'+fid+'"><div class="mn-output-label">Follow-up Report #'+followupCount+' <span class="mn-badge mn-badge-ready">Ready</span></div><div class="mn-card"><div class="mn-report" contenteditable="true" spellcheck="true">'+html+'</div><div class="mn-actions" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px"><button class="mn-btn mn-btn-outline" onclick="copyFollowup(\''+fid+'\')" style="font-size:.78rem;padding:7px 14px">Copy</button><button class="mn-btn mn-btn-outline" onclick="downloadFollowupPDF(\''+fid+'\')" style="font-size:.78rem;padding:7px 14px">PDF</button><button class="mn-btn mn-btn-outline" onclick="readFollowup(\''+fid+'\')" style="font-size:.78rem;padding:7px 14px">Read</button></div></div></div>');
-document.getElementById('followupPromptArea').style.display='none';document.getElementById('followupInstructions').value='';
-document.getElementById(fid).scrollIntoView({behavior:'smooth'});toast('Follow-up generated.');
+document.getElementById('loader').classList.add('active');document.getElementById('loaderText').textContent='Generating — please wait...';
+const lbl=document.getElementById('followupLabel');const ta=document.getElementById('followupInstructions');
+if(lbl)lbl.textContent='Follow-up Report Instructions';if(ta)ta.placeholder='Describe what this follow-up report should focus on...';
+try{
+  let prompt;
+  if(sheetId){
+    prompt=buildPrompt(sheetId).replace('{{USER_TEXT}}','PREVIOUS REPORT CONTEXT:\n'+prevReport+'\n\nNEW CLINICAL INFORMATION:\n'+instructions);
+  }else{
+    prompt='You are a medical documentation assistant.\nBased on the PREVIOUS REPORT below, generate a NEW follow-up report as requested.\n\nPREVIOUS REPORT:\n'+prevReport+'\n\nUSER REQUEST:\n'+instructions+'\n\nRULES:\n- Generate ONLY the requested content as a NEW standalone report section.\n- Use clean HTML: <h2> for titles, <p> for content, <strong> for labels.\n- Professional medical language.\n- Do NOT repeat the entire previous report, only the new requested content.\n\nOUTPUT: Return the follow-up report as HTML.';
+  }
+  const html=await callAPI(prompt);followupCount++;
+  const fid='followup_'+followupCount;
+  const cardLabel=sh?sh.name+' #'+followupCount:'Follow-up Report #'+followupCount;
+  const container=document.getElementById('followupContainer');
+  container.insertAdjacentHTML('beforeend','<div class="mn-followup-section" id="'+fid+'"><div class="mn-output-label">'+esc(cardLabel)+' <span class="mn-badge mn-badge-ready">Ready</span></div><div class="mn-card"><div class="mn-report" contenteditable="true" spellcheck="true">'+html+'</div><div class="mn-actions" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px"><button class="mn-btn mn-btn-outline" onclick="copyFollowup(\''+fid+'\')" style="font-size:.78rem;padding:7px 14px">Copy</button><button class="mn-btn mn-btn-outline" onclick="downloadFollowupPDF(\''+fid+'\')" style="font-size:.78rem;padding:7px 14px">PDF</button><button class="mn-btn mn-btn-outline" onclick="readFollowup(\''+fid+'\')" style="font-size:.78rem;padding:7px 14px">Read</button></div></div></div>');
+  document.getElementById('followupPromptArea').style.display='none';document.getElementById('followupInstructions').value='';
+  document.getElementById(fid).scrollIntoView({behavior:'smooth'});toast((sh?sh.name:'Follow-up')+' generated.');
 }catch(err){toast('Error: '+err.message,true);}finally{document.getElementById('loader').classList.remove('active');}}
 function copyFollowup(fid){const el=document.querySelector('#'+fid+' .mn-report');if(!el)return;navigator.clipboard.writeText(el.innerText).then(()=>toast('Copied.')).catch(()=>toast('Copy failed.',true));}
 async function downloadFollowupPDF(fid){const el=document.querySelector('#'+fid+' .mn-report');if(!el)return;toast('Preparing PDF...');try{const canvas=await html2canvas(el,{scale:2,backgroundColor:'#fff'});const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const pw=pdf.internal.pageSize.getWidth()-20;const ih=canvas.height*pw/canvas.width;pdf.addImage(canvas.toDataURL('image/png'),'PNG',10,10,pw,ih);pdf.save('Followup_Report.pdf');toast('PDF ready.');}catch{toast('PDF error.',true);}}
