@@ -305,6 +305,7 @@ body{font-family:'Karla',sans-serif;background:var(--bg);color:var(--text);line-
 .mn-btn-copy{background:var(--copy-light);color:var(--copy);border:1px solid rgba(14,116,144,.18)}.mn-btn-copy:hover:not(:disabled){background:var(--copy);color:#fff}
 .mn-btn svg{width:15px;height:15px;flex-shrink:0}
 .mn-loader-overlay{display:none;align-items:center;justify-content:center;flex-direction:column;padding:44px 20px;gap:14px}.mn-loader-overlay.active{display:flex}
+@keyframes mn-spin{to{transform:rotate(360deg)}}
 .mn-spinner{width:100px;height:3px;background:var(--border);border-radius:3px;overflow:hidden;position:relative}.mn-spinner::after{content:'';position:absolute;left:-40%;top:0;width:40%;height:100%;background:var(--primary);border-radius:3px;animation:mn-slide 1.2s ease-in-out infinite}@keyframes mn-slide{0%{left:-40%}100%{left:100%}}
 .mn-loader-text{font-size:.84rem;color:var(--text-secondary);font-weight:500}
 .mn-output-section{display:none}.mn-output-section.active{display:block;animation:mn-fadeUp .4s ease}@keyframes mn-fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
