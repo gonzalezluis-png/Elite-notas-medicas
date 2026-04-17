@@ -15,7 +15,7 @@ const mnImages={},mnInlineDataUrl={},mnPromptImages={},mnPromptInlineDataUrl={};
 let confirmCb=null;
 let medicalNotesCount=0;
 
-function loadS(){try{const s=localStorage.getItem('mn_v4');if(s){const d=JSON.parse(s);if(d.sheets&&d.sheets.length){const ai=d.sheets.findIndex(x=>x.id==='admission'),ni=d.sheets.findIndex(x=>x.id==='notes');if(ni===0&&ai>0){const adm=d.sheets.splice(ai,1)[0];d.sheets.unshift(adm);}return d;}}}catch{}return{email:'',darkMode:false,language:'en',spellingLevel:'medium',voiceCorrection:'medium',hipaa:{hideName:false,hideKNumber:false,hideRoom:false},doctorStyle:'',doctor:{name:'Dr. Miguel Rivas',license:'',specialty:'',phone:'',email:'',npi:''},hospital:{name:'',dept:'',address:'',phone:''},sheets:JSON.parse(JSON.stringify(DEFAULT_SHEETS))};}
+function loadS(){try{const s=localStorage.getItem('mn_v4');if(s){const d=JSON.parse(s);if(d.sheets&&d.sheets.length){DEFAULT_SHEETS.forEach(def=>{if(!d.sheets.find(x=>x.id===def.id))d.sheets.push(JSON.parse(JSON.stringify(def)));});const ai=d.sheets.findIndex(x=>x.id==='admission'),ni=d.sheets.findIndex(x=>x.id==='notes');if(ni===0&&ai>0){const adm=d.sheets.splice(ai,1)[0];d.sheets.unshift(adm);}return d;}}}catch{}return{email:'',darkMode:false,language:'en',spellingLevel:'medium',voiceCorrection:'medium',hipaa:{hideName:false,hideKNumber:false,hideRoom:false},doctorStyle:'',doctor:{name:'Dr. Miguel Rivas',license:'',specialty:'',phone:'',email:'',npi:''},hospital:{name:'',dept:'',address:'',phone:''},sheets:JSON.parse(JSON.stringify(DEFAULT_SHEETS))};}
 function saveS(s){try{localStorage.setItem('mn_v4',JSON.stringify(s));}catch{}}
 let S=loadS();
 
