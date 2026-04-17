@@ -156,7 +156,7 @@ body{font-family:'Karla',sans-serif;background:var(--bg);color:var(--text);line-
 .pb-bottom-row{display:flex;gap:10px;margin-top:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
 .pb-preview-btn{background:var(--bg);color:var(--text-secondary);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-family:'Karla',sans-serif;font-size:.76rem;font-weight:600;cursor:pointer;transition:all .2s}
 .pb-preview-btn:hover{border-color:var(--primary);color:var(--primary)}
-.pb-preview{display:none;margin-top:12px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-family:'Karla',monospace;font-size:.7rem;line-height:1.5;color:var(--text-secondary);max-height:260px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}.pb-preview.open{display:block}
+.pb-preview{display:none}
 .mn-btn-reset{background:var(--warning-light);color:var(--warning);border:1px solid rgba(176,125,16,.18)}.mn-btn-reset:hover{background:var(--warning);color:#fff}
 /* SHEET MANAGER MODAL */
 .mn-sheet-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:250;align-items:center;justify-content:center}
