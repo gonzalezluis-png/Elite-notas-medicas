@@ -321,6 +321,8 @@ function toggleGenerateMenu(){
   }
 }
 function closeGenerateMenu(){document.getElementById('generateWrap')?.classList.remove('open');}
+function toggleEditHint(e){e.stopPropagation();const p=document.getElementById('editHintPopover');p.style.display=p.style.display==='none'?'block':'none';}
+document.addEventListener('click',()=>{const p=document.getElementById('editHintPopover');if(p)p.style.display='none';});
 function showGenerateForSheet(sheetId){
   closeGenerateMenu();
   if(sheetId==='notes'){showMedicalNotesPrompt();return;}
