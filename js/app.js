@@ -144,7 +144,7 @@ let voiceMediaRecorder=null,voiceAudioChunks=[],voiceMimeType='audio/webm',voice
 function getMimeExt(mt){if(!mt)return'webm';if(mt.includes('mp4')||mt.includes('m4a'))return'mp4';if(mt.includes('ogg'))return'ogg';return'webm';}
 function cleanWhisperText(t){
   t=t.replace(/[\u{1F300}-\u{1FFFF}]/gu,'').replace(/[♪♫♬♩🎵🎶]/g,'').replace(/\[.*?\]/g,'').trim();
-  const hallucinations=[/thank you for (watching|listening|viewing)/i,/please (like|subscribe|share|follow)/i,/don't forget to (like|subscribe)/i,/visit (our|the) (website|site|store|shop)/i,/www\./i,/\.com\b/i,/\.net\b/i,/copyright\s*©/i,/all rights reserved/i,/sub(title|caption)/i,/transcript/i,/advertisement/i,/beading supply/i,/click (here|the link)/i];
+  const hallucinations=[/thank you.{0,20}(watching|listening|viewing)/i,/please.{0,10}(like|subscribe|share|follow)/i,/don't forget to (like|subscribe)/i,/visit (our|the) (website|site|store|shop)/i,/www\./i,/\.com\b/i,/\.net\b/i,/copyright\s*©/i,/all rights reserved/i,/sub(title|caption)/i,/advertisement/i,/beading supply/i,/click (here|the link)/i];
   if(hallucinations.some(r=>r.test(t)))return '';
   return t;
 }
