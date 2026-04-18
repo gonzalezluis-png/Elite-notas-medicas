@@ -423,4 +423,97 @@ body{font-family:'Karla',sans-serif;background:var(--bg);color:var(--text);line-
 .mn-chat-overlay{display:none}
 @media(max-width:768px){.mn-main{margin-left:0!important;margin-right:0!important}.mn-chat-panel{right:0;z-index:9998}.mn-chat-panel.peeking{width:0!important;min-width:0!important;border:none;box-shadow:none;overflow:hidden;padding:0}.mn-chat-panel.peeking .mn-chat-peek{display:none}.mn-chat-panel.peeking .mn-chat-inner{display:none}.mn-chat-panel.peeking .mn-chat-resize{display:none}.mn-chat-panel.expanded{width:100%!important}.mn-chat-fab{display:flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important}}.mn-chat-fab{display:none;position:fixed;bottom:20px;right:16px;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;border:none;box-shadow:0 4px 16px rgba(26,86,219,.35);cursor:pointer;align-items:center;justify-content:center;z-index:9999;transition:all .2s}.mn-chat-fab:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(26,86,219,.45)}
 .mn-chat-fab svg{width:22px;height:22px}
-.mn-chat-fab-badge{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid var(--bg);display:none}@media(max-width:600px){.mn-content{padding:14px 10px 40px}.mn-actions{flex-direction:column}.mn-btn{justify-content:center}.mn-report{padding:18px}.mn-edit-actions{flex-direction:column}.mn-settings-modal{width:98%;max-height:95vh}.mn-mode-tab{padding:11px 14px;font-size:11px}.mn-settings-row{grid-template-columns:1fr}.mn-stab{padding:9px 10px;font-size:10px}}
+.mn-chat-fab-badge{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid var(--bg);display:none}@media(max-width:600px){
+/* ── Layout ── */
+.mn-content{padding:12px 12px 60px}
+.mn-main{margin-left:0!important;margin-right:0!important}
+.mn-hamburger{top:10px;left:10px;width:34px;height:34px}
+
+/* ── Mode bar ── */
+.mn-mode-tab{padding:10px 12px;font-size:10.5px;letter-spacing:.4px}
+.mn-add-sheet-btn{padding:10px 12px}
+
+/* ── Welcome screen ── */
+.mn-welcome{padding:32px 12px 24px}
+.mn-welcome h1{font-size:1.4rem}
+.mn-welcome p{font-size:.82rem;margin-bottom:20px}
+.mn-welcome-card{min-width:calc(50% - 6px);max-width:100%;padding:14px 10px}
+.mn-recent-section{padding:0 4px;margin-top:32px}
+.mn-recent-header{gap:8px}
+.mn-recent-search{min-width:0;width:100%}
+.mn-recent-list{grid-template-columns:1fr;gap:10px}
+.mn-recent-card{padding:14px 12px;min-height:auto;gap:6px}
+
+/* ── Main header ── */
+.mn-header{padding:14px 0 10px}
+.mn-header h1{font-size:1.35rem}
+.mn-header p{font-size:.78rem}
+
+/* ── Cards & inputs ── */
+.mn-card{padding:14px 12px}
+.mn-textarea{min-height:130px;font-size:.9rem;padding:12px}
+.mn-char-count{font-size:.68rem}
+.mn-mic-row{gap:8px;margin-bottom:10px}
+.mn-mic-label{font-size:.78rem}
+
+/* ── Image bar ── */
+.mn-img-bar{flex-wrap:wrap;gap:6px}
+.mn-img-add-btn{font-size:.72rem;padding:7px 11px}
+.mn-img-thumb{width:52px;height:52px}
+
+/* ── Action buttons ── */
+.mn-actions{flex-wrap:wrap;gap:7px}
+.mn-actions>.mn-btn{flex:1 1 calc(50% - 4px);justify-content:center;min-width:0}
+.mn-actions>.mn-export-wrap{flex:1 1 calc(50% - 4px)}
+.mn-actions>.mn-export-wrap>.mn-btn{width:100%;justify-content:center}
+
+/* ── Output section ── */
+.mn-output-label{flex-wrap:wrap;gap:6px;font-size:.72rem}
+.mn-output-label>button{margin-left:0!important}
+.mn-edit-hint{font-size:.72rem;padding:8px 10px}
+
+/* ── Report ── */
+.mn-report{padding:14px 12px;font-size:.88rem}
+.mn-save-indicator{font-size:.7rem}
+
+/* ── Edit / Add content panels ── */
+.mn-edit-panel{padding:14px 12px}
+.mn-edit-textarea{min-height:80px;font-size:.85rem}
+.mn-edit-actions{flex-direction:column;gap:7px}
+.mn-edit-actions .mn-btn{width:100%;justify-content:center}
+
+/* ── Email panel ── */
+.mn-email-panel{padding:12px}
+.mn-email-btns{flex-direction:column;gap:7px}
+.mn-email-btns .mn-btn{width:100%;justify-content:center}
+
+/* ── Follow-up ── */
+.mn-followup-section{padding-top:14px}
+.mn-followup-label{font-size:.8rem}
+.mn-followup-prompt{min-height:70px;font-size:.85rem}
+
+/* ── Inline reader ── */
+.mn-inline-reader{padding:12px}
+.mn-inline-reader-img{max-width:80px;max-height:80px}
+.mn-context-area{font-size:.82rem}
+
+/* ── Medical notes generated card ── */
+.mn-medical-notes-generated{padding:14px 12px}
+
+/* ── Settings ── */
+.mn-settings-modal{width:100%;max-width:100%;max-height:100vh;height:100vh;border-radius:0}
+.mn-settings-header{padding:14px 16px 12px}
+.mn-settings-header h2{font-size:.95rem}
+.mn-settings-page{padding:16px 14px}
+.mn-settings-row{grid-template-columns:1fr}
+.mn-settings-input{font-size:.84rem;padding:9px 11px}
+.mn-stabs{padding:0 14px}
+.mn-stab{padding:9px 10px;font-size:10px}
+.mn-settings-footer{padding:12px 14px 16px}
+
+/* ── Prompt builder ── */
+.pb-typo-row{flex-wrap:wrap;gap:6px}
+.pb-typo-row label{min-width:auto;width:100%;margin-bottom:2px}
+.pb-sheet-tabs{gap:6px}
+.pb-sheet-tab{font-size:.7rem;padding:7px 10px}
+}
