@@ -173,6 +173,9 @@ function extractImages(outputHtml){try{const div=document.createElement('div');d
 function syncImagesInReport(){const rc=document.getElementById('reportContent');if(!rc)return;const ex=rc.querySelector('.mn-case-images');if(ex)ex.remove();if(caseImages.length)rc.insertAdjacentHTML('beforeend',getImagesHTML());hasUnsavedEdits=true;}
 function clearCaseImages(){caseImages=[];const t=document.getElementById('imgThumbs');if(t)t.innerHTML='';}
 function goHome(){showWelcome();}
+function toggleMoreMenu(){document.getElementById('moreMenu')?.classList.toggle('open');}
+function closeMoreMenu(){document.getElementById('moreMenu')?.classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#moreWrap'))closeMoreMenu();});
 function hideSpecialPanels(){['notepadPanel','imageReaderPanel','imageBankPanel'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});}
 function switchSpecialMode(mode){hideSpecialPanels();document.getElementById('welcomeScreen').style.display='none';document.getElementById('mainWorkarea').style.display='none';document.querySelectorAll('.mn-mode-tab').forEach(b=>b.classList.remove('active'));const ids={notepad:'notepadPanel','image-reader':'imageReaderPanel','image-bank':'imageBankPanel'};const tabIds={notepad:'tabNotepad','image-reader':'tabImageReader','image-bank':'tabImageBank'};const el=document.getElementById(ids[mode]);if(el)el.style.display='block';const btn=document.getElementById(tabIds[mode]);if(btn)btn.classList.add('active');if(mode==='notepad')loadNotepad();if(mode==='image-bank')loadImageBank();}
 function loadNotepad(){const saved=localStorage.getItem('mn_notepad')||'';const ta=document.getElementById('notepadContent');if(ta){ta.value=saved;document.getElementById('notepadChars').textContent=saved.length;}}
