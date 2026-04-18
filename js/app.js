@@ -173,7 +173,15 @@ function extractImages(outputHtml){try{const div=document.createElement('div');d
 function syncImagesInReport(){const rc=document.getElementById('reportContent');if(!rc)return;const ex=rc.querySelector('.mn-case-images');if(ex)ex.remove();if(caseImages.length)rc.insertAdjacentHTML('beforeend',getImagesHTML());hasUnsavedEdits=true;}
 function clearCaseImages(){caseImages=[];const t=document.getElementById('imgThumbs');if(t)t.innerHTML='';}
 function goHome(){showWelcome();}
-function toggleMoreMenu(){document.getElementById('moreMenu')?.classList.toggle('open');}
+function toggleMoreMenu(){
+  const menu=document.getElementById('moreMenu');const btn=document.getElementById('btnMore');
+  if(!menu||!btn)return;
+  if(menu.classList.contains('open')){menu.classList.remove('open');return;}
+  const r=btn.getBoundingClientRect();
+  menu.style.top=(r.bottom+4)+'px';
+  menu.style.right=(window.innerWidth-r.right)+'px';
+  menu.classList.add('open');
+}
 function closeMoreMenu(){document.getElementById('moreMenu')?.classList.remove('open');}
 document.addEventListener('click',e=>{if(!e.target.closest('#moreWrap'))closeMoreMenu();});
 function hideSpecialPanels(){['notepadPanel','imageReaderPanel','imageBankPanel'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});}
