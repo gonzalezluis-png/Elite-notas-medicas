@@ -206,13 +206,48 @@ function downloadReaderDocx(){const text=document.getElementById('readerResult')
 async function loadImageBank(){const container=document.getElementById('imageBankGrid');container.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px">Loading...</div>';try{const cases=await loadHistory();const allImages=[];for(const c of cases){const imgs=extractImages(c.output||'');imgs.forEach(img=>allImages.push({...img,caseName:c.title||'Untitled',caseId:c.id}));}caseImages.forEach(img=>{if(!allImages.find(i=>i.dataUrl===img.dataUrl))allImages.push({...img,caseName:'Current session',caseId:null});});if(!allImages.length){container.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px;border:2px dashed var(--border);border-radius:var(--radius)">No images found. Add images to cases to see them here.</div>';return;}container.innerHTML=allImages.map(img=>`<div class="mn-bank-item" onclick="openImgPreview('${img.dataUrl}')"><img src="${img.dataUrl}" alt="${esc(img.name)}"><div class="mn-bank-item-label">${esc(img.caseName)}</div></div>`).join('');}catch(e){container.innerHTML='<div style="grid-column:1/-1;color:var(--danger);padding:20px">Error loading images.</div>';}}
 function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='mn-toast show'+(err?' error':'');setTimeout(()=>t.className='mn-toast',3000);}
 function toggleInput(){const b=document.getElementById('inputBody'),tg=document.getElementById('inputToggle');const c=b.classList.toggle('collapsed');tg.classList.toggle('collapsed',c);document.getElementById('toggleLabel').textContent=c?'Show Notes':'Hide Notes';}
-function toggleEditPanel(){const p=document.getElementById('editPanel');p.classList.toggle('active');if(p.classList.contains('active'))document.getElementById('editInstructions').focus();}
+function toggleEditPanel(){
+  const p=document.getElementById('editPanel');if(!p)return;
+  if(p.classList.contains('active')){p.classList.remove('active');return;}
+  if(!p.querySelector('.mn-img-bar')){document.getElementById('editInstructions').insertAdjacentHTML('afterend',buildMNPromptImgBarHTML('edit_main','editInstructions'));}
+  attachMiniMic('editInstructions');
+  p.classList.add('active');
+  document.getElementById('editInstructions').focus();
+}
 
 const EDIT_PROMPT='You are a medical documentation assistant.\nYou previously generated this report:\n\n{{CURRENT_REPORT}}\n\nChanges requested:\n\n{{EDIT_INSTRUCTIONS}}\n\nApply ONLY the requested changes. Keep everything else. Return FULL report as clean HTML.';
 const ADD_CONTENT_PROMPT='You are a medical documentation assistant.\nThe existing report is:\n\n{{CURRENT_REPORT}}\n\nThe user wants to ADD NEW CONTENT with the following instructions:\n\n{{ADD_INSTRUCTIONS}}\n\nRULES:\n- Keep ALL existing content EXACTLY as it is — do not remove, rewrite, or summarize any section.\n- ONLY add new content as instructed.\n- Integrate new content naturally into the appropriate section(s) or append at the end.\n- Return the COMPLETE report (existing + new content) as clean HTML: <h2> titles, <p> content, <strong> labels.';
 
 async function generateReport(){const text=document.getElementById('clinicalInput').value.trim();if(!text){toast('Enter notes first.',true);return;}if(text.length<30){toast('Too short.',true);return;}const saveType=currentSheetId;currentInput=text;savedDraft='';currentCaseType=saveType;localStorage.removeItem('draft_'+currentSheetId);document.getElementById('draftBanner').classList.remove('active');document.getElementById('loader').classList.add('active');document.getElementById('loaderText').textContent='Structuring — please wait...';document.getElementById('outputSection').classList.remove('active');document.getElementById('btnGenerate').disabled=true;try{const html=await callAPI(getActivePrompt().replace('{{USER_TEXT}}',text));const stamp='<div class="mn-doctor-stamp">'+getDoctorStampHTML()+'</div>';structuredText=html+stamp;reportGenerated=true;hasUnsavedEdits=false;document.getElementById('reportContent').innerHTML=structuredText;applyReportTypo();if(caseImages.length)syncImagesInReport();document.getElementById('outputSection').classList.add('active');document.getElementById('editHint').classList.add('active');const sh=curSheet();document.getElementById('outputTypeBadge').textContent=sh.name;document.getElementById('btnSaveEdits').style.display='none';document.getElementById('inputToggle').style.display='flex';document.getElementById('inputBody').classList.add('collapsed');document.getElementById('inputToggle').classList.add('collapsed');document.getElementById('toggleLabel').textContent='Show Notes';document.getElementById('btnFollowup').style.display='inline-flex';const title=extractTitle(html);const id=currentCaseId||('case_'+Date.now());currentCaseId=id;await saveCase(id,title,text,getLiveReportHTML(),saveType);renderSidebar();showChatToggle();loadChatForCase(currentCaseId);if(chatOpen)renderChatMessages();toast('Report generated.');document.getElementById('outputSection').scrollIntoView({behavior:'smooth',block:'start'});}catch(err){toast('Error: '+err.message,true);}finally{document.getElementById('loader').classList.remove('active');document.getElementById('btnGenerate').disabled=false;}}
-async function applyEdit(){const ins=document.getElementById('editInstructions').value.trim();if(!ins){toast('Describe changes.',true);return;}document.getElementById('loader').classList.add('active');document.getElementById('loaderText').textContent='Applying changes — please wait...';document.getElementById('btnApplyEdit').disabled=true;document.getElementById('btnApplyEdit').textContent='Processing...';try{const html=await callAPI(EDIT_PROMPT.replace('{{CURRENT_REPORT}}',getLiveReportHTML()).replace('{{EDIT_INSTRUCTIONS}}',ins));structuredText=html;document.getElementById('reportContent').innerHTML=html;applyReportTypo();if(caseImages.length)syncImagesInReport();document.getElementById('editPanel').classList.remove('active');document.getElementById('editInstructions').value='';hasUnsavedEdits=false;if(currentCaseId){await saveCase(currentCaseId,extractTitle(html),currentInput,html,currentCaseType);renderSidebar();}toast('Applied.');}catch(err){toast('Error: '+err.message,true);}finally{document.getElementById('loader').classList.remove('active');document.getElementById('btnApplyEdit').disabled=false;document.getElementById('btnApplyEdit').textContent='Apply';}}
+async function applyEdit(){
+  const ins=document.getElementById('editInstructions').value.trim();
+  if(!ins){toast('Describe changes.',true);return;}
+  document.getElementById('loader').classList.add('active');document.getElementById('loaderText').textContent='Applying changes — please wait...';
+  document.getElementById('btnApplyEdit').disabled=true;document.getElementById('btnApplyEdit').textContent='Processing...';
+  try{
+    const imgs=mnPromptImages['edit_main']||[];
+    let html;
+    if(imgs.length){
+      const content=[];
+      imgs.forEach(img=>{const m=img.dataUrl.match(/^data:([^;]+);base64,(.+)$/);if(m)content.push({type:'image',source:{type:'base64',media_type:m[1],data:m[2]}});});
+      content.push({type:'text',text:EDIT_PROMPT.replace('{{CURRENT_REPORT}}',getLiveReportHTML()).replace('{{EDIT_INSTRUCTIONS}}',ins)});
+      const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content}]})});
+      if(!r.ok)throw new Error('API error '+r.status);
+      const d=await r.json();html=d.content.map(b=>b.text||'').join('').replace(/```html?/g,'').replace(/```/g,'').trim();
+    }else{
+      html=await callAPI(EDIT_PROMPT.replace('{{CURRENT_REPORT}}',getLiveReportHTML()).replace('{{EDIT_INSTRUCTIONS}}',ins));
+    }
+    structuredText=html;document.getElementById('reportContent').innerHTML=html;applyReportTypo();
+    if(caseImages.length)syncImagesInReport();
+    document.getElementById('editPanel').classList.remove('active');
+    document.getElementById('editInstructions').value='';
+    mnPromptImages['edit_main']=[];renderMNPromptImgThumbs('edit_main');
+    hasUnsavedEdits=false;
+    if(currentCaseId){await saveCase(currentCaseId,extractTitle(html),currentInput,html,currentCaseType);renderSidebar();}
+    toast('Applied.');
+  }catch(err){toast('Error: '+err.message,true);}
+  finally{document.getElementById('loader').classList.remove('active');document.getElementById('btnApplyEdit').disabled=false;document.getElementById('btnApplyEdit').textContent='Apply';}
+}
 /* ═══ ADD CONTENT WITH AI (main report) ═══ */
 function toggleAddContentPanel(){
   const p=document.getElementById('addContentPanel');if(!p)return;
