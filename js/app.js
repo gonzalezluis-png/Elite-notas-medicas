@@ -345,6 +345,30 @@ async function applyMNAddContent(mnid){
 
 async function copyToClipboard(){const el=document.getElementById('reportContent'),h=el.innerHTML,pt=el.innerText;try{if(navigator.clipboard&&window.ClipboardItem){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([h],{type:'text/html'}),'text/plain':new Blob([pt],{type:'text/plain'})})]);toast('Copied!');}else{await navigator.clipboard.writeText(pt);toast('Copied.');}}catch{toast('Copy failed.',true);}}
 async function downloadPDF(){toast('Preparing PDF...');try{const canvas=await html2canvas(document.getElementById('reportContent'),{scale:2,useCORS:true,backgroundColor:document.documentElement.classList.contains('dark')?'#1a1d28':'#fff'});const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const pw=pdf.internal.pageSize.getWidth()-20,pH=pdf.internal.pageSize.getHeight()-20,ih=canvas.height*pw/canvas.width;if(ih<=pH)pdf.addImage(canvas.toDataURL('image/png'),'PNG',10,10,pw,ih);else{let sY=0;while(sY<canvas.height){const sH=Math.min(canvas.height-sY,canvas.width*pH/pw);const sl=document.createElement('canvas');sl.width=canvas.width;sl.height=sH;sl.getContext('2d').drawImage(canvas,0,sY,canvas.width,sH,0,0,canvas.width,sH);if(sY>0)pdf.addPage();pdf.addImage(sl.toDataURL('image/png'),'PNG',10,10,pw,sH*pw/canvas.width);sY+=sH;}}pdf.save(curSheet().name.replace(/\s/g,'_')+'_Report.pdf');toast('PDF ready.');}catch(e){toast('PDF error.',true);}}
+function printReport(){
+  const sh=curSheet();
+  const content=document.getElementById('reportContent').innerHTML;
+  const win=window.open('','_blank','width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(sh.name)} Report</title><style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    @page{size:letter;margin:.45in .5in .45in .5in}
+    body{font-family:Arial,sans-serif;font-size:8.5pt;line-height:1.28;color:#000;background:#fff}
+    h2{font-size:9pt;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #999;padding-bottom:1px;margin:7px 0 3px}
+    p{margin:1px 0 3px;font-size:8.5pt;line-height:1.28}
+    strong{font-weight:700}
+    ul,ol{margin:1px 0 3px;padding-left:14px}
+    li{margin:1px 0;font-size:8.5pt;line-height:1.28}
+    .mn-doctor-stamp{font-size:7.5pt;color:#444;border-top:1px solid #bbb;margin-top:8px;padding-top:5px;line-height:1.4}
+    .print-header{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid #000}
+    @media print{body{font-size:8.5pt}h2{page-break-after:avoid}p,li{orphans:3;widows:3}}
+  </style></head><body>
+  <div class="print-header">${esc(sh.name)}</div>
+  ${content}
+  </body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{win.print();win.close();},400);
+}
 function downloadDOCX(){try{const h=document.getElementById('reportContent').innerHTML;const sh=curSheet();const doc='<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><style>@page{size:letter;margin:2.54cm}body{font-family:Calibri,sans-serif;font-size:11pt;line-height:1.6}h2{font-size:13pt;font-weight:bold;color:'+sh.color+';border-bottom:1px solid #ddd;padding-bottom:4pt}p{margin:3pt 0}strong{font-weight:bold}</style></head><body><div style="text-align:center;font-size:15pt;font-weight:bold;color:'+sh.color+';margin-bottom:12pt">'+esc(sh.name).toUpperCase()+'</div><hr style="border:1px solid #ddd;margin-bottom:16pt">'+h+'</body></html>';const blob=new Blob(['\ufeff'+doc],{type:'application/msword'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=sh.name.replace(/\s/g,'_')+'_Report.doc';document.body.appendChild(a);a.click();setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},250);toast('Word ready.');}catch{toast('Word error.',true);}}
 function clearAll(){const txt=document.getElementById('clinicalInput').value;const rep=document.getElementById('reportContent').innerText||'';if(txt.length>50||rep.length>50){showConfirm('You have content in the editor. <strong>Clear everything?</strong> This cannot be undone.',ok=>{if(ok)doClearAll();});}else{doClearAll();}}
 function doClearAll(){document.getElementById('clinicalInput').value='';document.getElementById('charCount').textContent='0';document.getElementById('reportContent').innerHTML='';document.getElementById('outputSection').classList.remove('active');document.getElementById('editHint').classList.remove('active');document.getElementById('editPanel').classList.remove('active');document.getElementById('btnSaveEdits').style.display='none';document.getElementById('saveIndicator').classList.remove('active');document.getElementById('draftBanner').classList.remove('active');document.getElementById('btnFollowup').style.display='none';document.getElementById('followupContainer').innerHTML='';document.getElementById('followupPromptArea').style.display='none';document.getElementById('medicalNotesContainer').innerHTML='';document.getElementById('medicalNotesPromptArea').style.display='none';savedDraft='';structuredText='';reportGenerated=false;currentCaseId=null;currentInput='';hasUnsavedEdits=false;followupCount=0;medicalNotesCount=0;clearCaseImages();document.getElementById('inputToggle').style.display='none';document.getElementById('inputBody').classList.remove('collapsed');if(chatOpen)minimizeChat();toast('Cleared.');}
